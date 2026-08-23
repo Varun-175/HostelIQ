@@ -4,24 +4,37 @@ interface LogoProps {
   compact?: boolean;
   className?: string;
   labelClassName?: string;
+  light?: boolean;
 }
 
-export function Logo({ compact = false, className, labelClassName }: LogoProps) {
+export function Logo({ compact = false, className, labelClassName, light = false }: LogoProps) {
   return (
     <div className={cn('inline-flex items-center gap-3', className)} aria-label="HostelIQ">
-      <svg className="h-10 w-10 shrink-0" viewBox="0 0 40 40" role="img" aria-hidden="true">
+      {/* Modern, abstract geometric logo mark */}
+      <svg className="h-10 w-10 shrink-0" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect width="40" height="40" rx="12" fill="url(#paint0_linear)" />
+        <path d="M12 28V15C12 13.3431 13.3431 12 15 12H25C26.6569 12 28 13.3431 28 15V28" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+        <path d="M12 20H28" stroke="white" strokeWidth="2.5" strokeLinecap="round" />
+        <path d="M16 20V28" stroke="white" strokeWidth="2.5" strokeLinecap="round" />
+        <path d="M24 20V28" stroke="white" strokeWidth="2.5" strokeLinecap="round" />
+        <circle cx="20" cy="16" r="1.5" fill="white" />
         <defs>
-          <linearGradient id="hosteliq-logo-gradient" x1="5" y1="4" x2="35" y2="36" gradientUnits="userSpaceOnUse">
-            <stop stopColor="#22d3ee" />
-            <stop offset="1" stopColor="#4f46e5" />
+          <linearGradient id="paint0_linear" x1="0" y1="0" x2="40" y2="40" gradientUnits="userSpaceOnUse">
+            <stop stopColor="#4F46E5" />
+            <stop offset="1" stopColor="#06B6D4" />
           </linearGradient>
         </defs>
-        <rect x="2" y="2" width="36" height="36" rx="11" fill="url(#hosteliq-logo-gradient)" />
-        <path d="M11 27V15.5C11 14.12 12.12 13 13.5 13h13c1.38 0 2.5 1.12 2.5 2.5V27" fill="none" stroke="white" strokeWidth="2.2" strokeLinecap="round" />
-        <path d="M11 21h18M14 21v6M26 21v6" fill="none" stroke="white" strokeWidth="2.2" strokeLinecap="round" />
-        <path d="M30.5 9.5v3M29 11h3" fill="none" stroke="#fef3c7" strokeWidth="1.8" strokeLinecap="round" />
       </svg>
-      {!compact && <span className={cn('font-bold tracking-tight text-slate-950', labelClassName)}>Hostel<span className="text-primary-600">IQ</span></span>}
+      
+      {!compact && (
+        <span className={cn(
+          'text-2xl font-bold tracking-tight display-font', 
+          light ? 'text-white' : 'text-slate-900',
+          labelClassName
+        )}>
+          Hostel<span className={light ? 'text-primary-300' : 'text-primary-600'}>IQ</span>
+        </span>
+      )}
     </div>
   );
 }

@@ -17,14 +17,14 @@ export default function AppShell() {
       {/* Mobile sidebar overlay */}
       {sidebarOpen && (
         <div 
-          className="fixed inset-0 z-40 bg-slate-900/50 backdrop-blur-sm lg:hidden animate-fade-in" 
+          className="fixed inset-0 z-40 bg-slate-900/40 backdrop-blur-sm lg:hidden animate-fade-in" 
           onClick={() => setSidebarOpen(false)}
         />
       )}
 
       {/* Sidebar container */}
       <div className={`
-        fixed inset-y-0 left-0 z-50 transform transition-transform duration-300 ease-in-out lg:static lg:translate-x-0
+        fixed inset-y-0 left-0 z-50 transform transition-transform duration-500 cubic-bezier(0.16, 1, 0.3, 1) lg:static lg:translate-x-0
         ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}
       `}>
         <Sidebar onClose={() => setSidebarOpen(false)} />
@@ -33,8 +33,10 @@ export default function AppShell() {
       <div className="flex flex-1 flex-col overflow-hidden relative">
         <Topbar onMenuClick={() => setSidebarOpen(true)} />
         
-        <main className="relative flex-1 overflow-y-auto overflow-x-hidden p-4 sm:p-6 lg:p-8">
-          <div className="pointer-events-none absolute inset-0 opacity-40 [background-image:linear-gradient(rgba(148,163,184,.08)_1px,transparent_1px),linear-gradient(90deg,rgba(148,163,184,.08)_1px,transparent_1px)] [background-size:32px_32px]" />
+        <main className="relative flex-1 overflow-y-auto overflow-x-hidden p-6 sm:p-8 lg:p-10 scroll-smooth">
+          {/* Subtle grid background pattern */}
+          <div className="pointer-events-none absolute inset-0 opacity-40 [background-image:linear-gradient(rgba(148,163,184,.08)_1px,transparent_1px),linear-gradient(90deg,rgba(148,163,184,.08)_1px,transparent_1px)] [background-size:24px_24px] [mask-image:linear-gradient(to_bottom,white_20%,transparent_90%)]" />
+          
           <div className="relative mx-auto max-w-[1440px] animate-fade-in">
             <Outlet />
           </div>
