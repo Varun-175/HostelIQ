@@ -5,6 +5,7 @@ const router = Router();
 
 router.post('/allocate', allocationController.allocate);
 router.get('/', allocationController.getAllocations);
+router.get('/:studentId/history', allocationController.getStudentAllocationHistory);
 router.get('/:studentId', allocationController.getStudentAllocation);
 
 export default router;

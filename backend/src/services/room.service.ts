@@ -21,6 +21,23 @@ export const createRoom = async (data: Partial<IRoom>): Promise<IRoom> => {
   return await room.save();
 };
 
+export const updateRoom = async (roomNo: number, data: Partial<IRoom>): Promise<IRoom | null> => {
+  const room = await Room.findOne({ roomNo });
+  if (!room) return null;
+  Object.assign(room, data);
+  normalizeRoom(room);
+  return await room.save();
+};
+
+export const deleteRoom = async (roomNo: number): Promise<IRoom | null> => {
+  const room = await Room.findOne({ roomNo });
+  if (!room) return null;
+  if (room.occupants.length > 0) {
+    throw new Error('Cannot delete a room with occupants');
+  }
+  return await Room.findOneAndDelete({ roomNo });
+};
+
 const normalizeRoom = (room: IRoom): IRoom => {
   const occupantCount = room.occupants.length;
   room.occupancy = {

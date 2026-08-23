@@ -136,3 +136,9 @@ export const getAllocations = async (): Promise<IAllocation[]> => {
 export const getAllocationByStudentId = async (studentId: string): Promise<IAllocation | null> => {
   return await Allocation.findOne({ studentId }).populate('studentId', 'name registerNo department');
 };
+
+export const getAllocationHistory = async (studentId: string) => {
+  return await AllocationHistory.find({ studentId })
+    .populate('roomId', 'roomNo floor roomType')
+    .sort({ createdAt: -1 });
+};

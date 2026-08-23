@@ -38,3 +38,15 @@ export const getStudentAllocation = async (req: Request, res: Response) => {
     res.status(500).json({ success: false, message: error.message });
   }
 };
+
+export const getStudentAllocationHistory = async (req: Request, res: Response) => {
+  try {
+    if (!mongoose.isValidObjectId(req.params.studentId)) {
+      return res.status(400).json({ success: false, message: 'Invalid student ID' });
+    }
+    const history = await allocationService.getAllocationHistory(req.params.studentId as string);
+    res.status(200).json({ success: true, data: history });
+  } catch (error: any) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};

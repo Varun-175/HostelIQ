@@ -61,3 +61,18 @@ export const updateStudent = async (req: Request, res: Response) => {
     res.status(500).json({ success: false, message: error.message });
   }
 };
+
+export const deleteStudent = async (req: Request, res: Response) => {
+  try {
+    if (!mongoose.isValidObjectId(req.params.id)) {
+      return res.status(400).json({ success: false, message: 'Invalid student ID' });
+    }
+    const student = await studentService.deleteStudent(req.params.id as string);
+    if (!student) {
+      return res.status(404).json({ success: false, message: 'Student not found' });
+    }
+    res.status(200).json({ success: true, data: student });
+  } catch (error: any) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};

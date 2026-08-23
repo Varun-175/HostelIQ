@@ -5,6 +5,7 @@ export interface IUser extends Document {
   name: string;
   role: 'STUDENT' | 'WARDEN' | 'HOSTEL_ADMIN' | 'SUPER_ADMIN';
   permissions: string[];
+  passwordHash?: string;
   referenceId?: mongoose.Types.ObjectId; // E.g., Student ID if role is STUDENT
   createdAt: Date;
   updatedAt: Date;
@@ -20,6 +21,7 @@ const UserSchema = new Schema(
       default: 'STUDENT',
     },
     permissions: [{ type: String }],
+    passwordHash: { type: String, select: false },
     referenceId: { type: Schema.Types.ObjectId },
   },
   { timestamps: true }

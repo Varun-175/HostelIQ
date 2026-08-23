@@ -39,6 +39,12 @@ router.get(
 );
 
 router.post(
+  '/allocations/:id/approve',
+  authorizePermission('allocation.manage'),
+  adminController.approveAllocation
+);
+
+router.post(
   '/allocations/:id/override',
   authorizePermission('allocation.override'),
   adminController.overrideAllocation

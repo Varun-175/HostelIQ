@@ -166,6 +166,32 @@ export const reviewAllocation = async (req: Request, res: Response) => {
   }
 };
 
+export const approveAllocation = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    if (!mongoose.isValidObjectId(id)) {
+      return res.status(400).json({ success: false, message: 'Invalid allocation ID' });
+    }
+    const allocation = await Allocation.findByIdAndUpdate(
+      id,
+      { status: 'ALLOCATED', allocatedBy: 'ADMIN' },
+      { new: true, runValidators: true }
+    );
+    if (!allocation) return res.status(404).json({ success: false, message: 'Allocation not found' });
+    await AuditLog.create({
+      entityType: 'ALLOCATION',
+      entityId: allocation._id,
+      action: 'ALLOCATION_APPROVED',
+      actorId: req.user?.id,
+      actorRole: req.user?.role,
+      newState: allocation.toObject(),
+    });
+    res.status(200).json({ success: true, data: allocation });
+  } catch (error: any) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
 export const overrideAllocation = async (req: Request, res: Response) => {
   try {
     const { id } = req.params; // allocation id

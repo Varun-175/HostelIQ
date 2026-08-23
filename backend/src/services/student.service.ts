@@ -20,3 +20,7 @@ export const getStudentByRegisterNo = async (registerNo: string): Promise<IStude
 export const updateStudent = async (id: string, data: Partial<IStudent>): Promise<IStudent | null> => {
   return await Student.findByIdAndUpdate(id, data, { new: true, runValidators: true });
 };
+
+export const deleteStudent = async (id: string): Promise<IStudent | null> => {
+  return await Student.findByIdAndDelete(id);
+};

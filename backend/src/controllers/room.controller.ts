@@ -34,3 +34,31 @@ export const createRoom = async (req: Request, res: Response) => {
     res.status(400).json({ success: false, message: error.message });
   }
 };
+
+export const updateRoom = async (req: Request, res: Response) => {
+  try {
+    const roomNo = Number(req.params.roomNo);
+    if (!Number.isInteger(roomNo) || roomNo < 1) {
+      return res.status(400).json({ success: false, message: 'Invalid room number' });
+    }
+    const room = await roomService.updateRoom(roomNo, req.body);
+    if (!room) return res.status(404).json({ success: false, message: 'Room not found' });
+    res.status(200).json({ success: true, data: room });
+  } catch (error: any) {
+    res.status(400).json({ success: false, message: error.message });
+  }
+};
+
+export const deleteRoom = async (req: Request, res: Response) => {
+  try {
+    const roomNo = Number(req.params.roomNo);
+    if (!Number.isInteger(roomNo) || roomNo < 1) {
+      return res.status(400).json({ success: false, message: 'Invalid room number' });
+    }
+    const room = await roomService.deleteRoom(roomNo);
+    if (!room) return res.status(404).json({ success: false, message: 'Room not found' });
+    res.status(200).json({ success: true, data: room });
+  } catch (error: any) {
+    res.status(409).json({ success: false, message: error.message });
+  }
+};
