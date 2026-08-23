@@ -28,3 +28,19 @@ export const authorizePermission = (requiredPermission: string) => {
     next();
   };
 };
+
+export const authorizeAnyPermission = (requiredPermissions: string[]) => {
+  return (req: Request, res: Response, next: NextFunction) => {
+    if (!req.user) {
+      return res.status(401).json({ success: false, message: 'Not authenticated' });
+    }
+
+    const hasPermission = req.user.permissions.includes('*') ||
+      requiredPermissions.some((permission) => req.user?.permissions.includes(permission));
+    if (!hasPermission) {
+      return res.status(403).json({ success: false, message: 'Forbidden: Missing permission' });
+    }
+
+    next();
+  };
+};

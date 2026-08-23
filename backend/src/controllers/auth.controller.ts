@@ -6,7 +6,7 @@ import { User } from '../models/User';
 const DEMO_PASSWORD = 'HostelIQ@2026';
 const DEMO_ACCOUNTS = {
   'varun@student.com': { name: 'Varun A K', role: 'STUDENT' as const, permissions: ['allocation.request'] },
-  'warden@hosteliq.com': { name: 'Warden Singh', role: 'WARDEN' as const, permissions: ['allocation.approve', 'student.read', 'room.read'] },
+  'warden@hosteliq.com': { name: 'Warden Singh', role: 'WARDEN' as const, permissions: ['allocation.approve', 'allocation.manage', 'student.read', 'room.read', 'analytics.read'] },
   'admin@hosteliq.com': { name: 'Admin Sharma', role: 'HOSTEL_ADMIN' as const, permissions: ['room.manage', 'allocation.manage', 'student.read', 'analytics.read'] },
   'super@hosteliq.com': { name: 'Super Admin', role: 'SUPER_ADMIN' as const, permissions: ['*'] },
 };
@@ -43,8 +43,10 @@ export const login = async (req: Request, res: Response) => {
         permissions: demoAccount.permissions,
         passwordHash: `${passwordData.salt}:${passwordData.hash}`,
       });
-    } else if (!user.passwordHash || !matchesPassword(password, user.passwordHash)) {
-      user.passwordHash = `${passwordData.salt}:${passwordData.hash}`;
+    } else {
+      if (!user.passwordHash || !matchesPassword(password, user.passwordHash)) {
+        user.passwordHash = `${passwordData.salt}:${passwordData.hash}`;
+      }
       user.name = demoAccount.name;
       user.role = demoAccount.role;
       user.permissions = demoAccount.permissions;

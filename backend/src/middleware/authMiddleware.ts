@@ -30,7 +30,11 @@ export const authenticate = (req: Request, res: Response, next: NextFunction) =>
   } else if (token === 'HOSTEL_ADMIN_TOKEN') {
     req.user = { id: '60d5ec49c6396b2e1480f002', role: 'HOSTEL_ADMIN', permissions: ['room.manage', 'allocation.manage', 'student.read', 'analytics.read'] };
   } else if (token === 'WARDEN_TOKEN') {
-    req.user = { id: '60d5ec49c6396b2e1480f003', role: 'WARDEN', permissions: ['allocation.approve', 'student.read', 'room.read'] };
+    req.user = {
+      id: '60d5ec49c6396b2e1480f003',
+      role: 'WARDEN',
+      permissions: ['allocation.approve', 'allocation.manage', 'student.read', 'room.read', 'analytics.read'],
+    };
   } else if (token === 'STUDENT_TOKEN') {
     req.user = { id: '60d5ec49c6396b2e1480f004', role: 'STUDENT', permissions: ['allocation.request'] };
   } else {
