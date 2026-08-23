@@ -1,5 +1,4 @@
 import apiClient from './client';
-import { User } from '../contexts/AuthContext';
 
 export interface StudentPreferences {
   roomType: 'SINGLE' | 'DOUBLE' | 'TRIPLE';
