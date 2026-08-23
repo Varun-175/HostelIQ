@@ -5,6 +5,7 @@ import { Room } from '../models/Room';
 import { AllocationRequest } from '../models/AllocationRequest';
 import { Allocation } from '../models/Allocation';
 import { AuditLog } from '../models/AuditLog';
+import * as allocationService from '../services/allocation.service';
 
 export const getDashboard = async (req: Request, res: Response) => {
   try {
@@ -189,6 +190,22 @@ export const approveAllocation = async (req: Request, res: Response) => {
     res.status(200).json({ success: true, data: allocation });
   } catch (error: any) {
     res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+export const rejectAllocation = async (req: Request, res: Response) => {
+  try {
+    if (!mongoose.isValidObjectId(req.params.id)) {
+      return res.status(400).json({ success: false, message: 'Invalid allocation ID' });
+    }
+    const reason = String(req.body.reason || '').trim();
+    if (!reason) return res.status(400).json({ success: false, message: 'Rejection reason is required' });
+    const existingAllocation = await Allocation.findById(req.params.id).select('studentId');
+    if (!existingAllocation) return res.status(404).json({ success: false, message: 'Allocation not found' });
+    const allocation = await allocationService.closeAllocation(existingAllocation.studentId.toString(), 'CANCELLED', reason, 'ADMIN');
+    res.status(200).json({ success: true, data: allocation, message: 'Allocation rejected and room released' });
+  } catch (error: any) {
+    res.status(400).json({ success: false, message: error.message });
   }
 };
 

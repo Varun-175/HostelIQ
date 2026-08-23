@@ -45,6 +45,12 @@ router.post(
 );
 
 router.post(
+  '/allocations/:id/reject',
+  authorizeAnyPermission(['allocation.approve', 'allocation.manage']),
+  adminController.rejectAllocation
+);
+
+router.post(
   '/allocations/:id/override',
   authorizePermission('allocation.override'),
   adminController.overrideAllocation

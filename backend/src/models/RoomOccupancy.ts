@@ -8,6 +8,7 @@ export interface IRoomOccupancy extends Document {
   checkIn?: Date;
   checkOut?: Date;
   status: 'ACTIVE' | 'ENDED';
+  endsAt?: Date;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -20,6 +21,7 @@ const RoomOccupancySchema = new Schema(
     bedNumber: { type: Number },
     checkIn: { type: Date },
     checkOut: { type: Date },
+    endsAt: { type: Date, index: true },
     status: {
       type: String,
       enum: ['ACTIVE', 'ENDED'],

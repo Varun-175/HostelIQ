@@ -9,7 +9,11 @@ import { AllocationEvaluation } from '../models/AllocationEvaluation';
 import { AllocationHistory } from '../models/AllocationHistory';
 import { AuditLog } from '../models/AuditLog';
 
-export const allocateStudent = async (studentId: string): Promise<IAllocation> => {
+export const allocateStudent = async (studentId: string, durationDays = 180): Promise<IAllocation> => {
+  if (!Number.isInteger(durationDays) || durationDays < 1 || durationDays > 3650) {
+    throw new Error('Duration must be between 1 and 3650 days');
+  }
+  const endsAt = new Date(Date.now() + durationDays * 24 * 60 * 60 * 1000);
   const session = await mongoose.startSession();
   session.startTransaction();
 
@@ -65,6 +69,7 @@ export const allocateStudent = async (studentId: string): Promise<IAllocation> =
       scoreBreakdown: bestCandidate.scoreBreakdown,
       reason: bestCandidate.reason,
       status: 'PENDING',
+      endsAt,
       allocatedBy: 'SYSTEM',
       smartFit: {
         totalScore: bestCandidate.totalScore,
@@ -80,7 +85,8 @@ export const allocateStudent = async (studentId: string): Promise<IAllocation> =
       studentId: student.id,
       allocationId: allocation._id,
       status: 'ACTIVE',
-      checkIn: new Date()
+      checkIn: new Date(),
+      endsAt,
     }], { session });
 
     // V2: Create AllocationEvaluation
@@ -141,4 +147,74 @@ export const getAllocationHistory = async (studentId: string) => {
   return await AllocationHistory.find({ studentId })
     .populate('roomId', 'roomNo floor roomType')
     .sort({ createdAt: -1 });
+};
+
+export const closeAllocation = async (
+  studentId: string,
+  event: 'CANCELLED' | 'VACATED',
+  reason: string,
+  actor: 'ADMIN' | 'STUDENT'
+) => {
+  const session = await mongoose.startSession();
+  session.startTransaction();
+  try {
+    const allocation = await Allocation.findOne({
+      studentId,
+      status: { $in: ['PENDING', 'ALLOCATED'] },
+    }).session(session);
+    if (!allocation) throw new Error('Active allocation not found');
+
+    const room = allocation.roomId ? await Room.findById(allocation.roomId).session(session) : null;
+    if (room) {
+      room.occupants = room.occupants.filter((occupant) => occupant.toString() !== studentId);
+      await room.save({ session });
+    }
+
+    await RoomOccupancy.updateMany(
+      { allocationId: allocation._id, status: 'ACTIVE' },
+      { status: 'ENDED', checkOut: new Date() },
+      { session }
+    );
+    allocation.status = 'CANCELLED';
+    await allocation.save({ session });
+    await Student.findByIdAndUpdate(studentId, { $unset: { allocation: 1 } }, { session });
+    await AllocationHistory.create([{
+      studentId,
+      roomId: allocation.roomId,
+      allocationId: allocation._id,
+      event,
+      reason,
+      actor,
+    }], { session });
+    await AuditLog.create([{
+      entityType: 'ALLOCATION',
+      entityId: allocation._id,
+      action: event === 'VACATED' ? 'ALLOCATION_VACATED' : 'ALLOCATION_REJECTED',
+      metadata: { reason, actor },
+    }], { session });
+    await session.commitTransaction();
+    return allocation;
+  } catch (error) {
+    await session.abortTransaction();
+    throw error;
+  } finally {
+    session.endSession();
+  }
+};
+
+export const releaseExpiredAllocations = async () => {
+  const expired = await Allocation.find({
+    status: { $in: ['PENDING', 'ALLOCATED'] },
+    endsAt: { $lte: new Date() },
+  }).select('studentId');
+
+  for (const allocation of expired) {
+    try {
+      await closeAllocation(allocation.studentId.toString(), 'CANCELLED', 'Booking duration ended automatically', 'ADMIN');
+    } catch (error) {
+      console.error(`Failed to release expired allocation for ${allocation.studentId.toString()}:`, error);
+    }
+  }
+
+  return expired.length;
 };

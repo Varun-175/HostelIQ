@@ -8,7 +8,8 @@ export const allocate = async (req: Request, res: Response) => {
     if (!studentId) {
       return res.status(400).json({ success: false, message: 'Student ID is required' });
     }
-    const allocation = await allocationService.allocateStudent(studentId);
+    const durationDays = req.body.durationDays === undefined ? 180 : Number(req.body.durationDays);
+    const allocation = await allocationService.allocateStudent(studentId, durationDays);
     res.status(200).json({ success: true, data: allocation });
   } catch (error: any) {
     res.status(400).json({ success: false, message: error.message });
@@ -48,5 +49,22 @@ export const getStudentAllocationHistory = async (req: Request, res: Response) =
     res.status(200).json({ success: true, data: history });
   } catch (error: any) {
     res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+export const vacateStudent = async (req: Request, res: Response) => {
+  try {
+    if (!mongoose.isValidObjectId(req.params.studentId)) {
+      return res.status(400).json({ success: false, message: 'Invalid student ID' });
+    }
+    const allocation = await allocationService.closeAllocation(
+      req.params.studentId as string,
+      'VACATED',
+      'Student vacated the room',
+      'STUDENT'
+    );
+    res.status(200).json({ success: true, data: allocation, message: 'Room vacated and marked available' });
+  } catch (error: any) {
+    res.status(400).json({ success: false, message: error.message });
   }
 };

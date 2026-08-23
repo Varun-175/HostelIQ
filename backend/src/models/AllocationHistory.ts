@@ -5,7 +5,7 @@ export interface IAllocationHistory extends Document {
   roomId: mongoose.Types.ObjectId;
   allocationId?: mongoose.Types.ObjectId;
   previousRoomId?: mongoose.Types.ObjectId;
-  event: 'ALLOCATED' | 'TRANSFERRED' | 'CANCELLED' | 'REASSIGNED' | 'OVERRIDDEN';
+  event: 'ALLOCATED' | 'TRANSFERRED' | 'CANCELLED' | 'REASSIGNED' | 'OVERRIDDEN' | 'VACATED';
   score?: number;
   scoreBreakdown?: any;
   reason?: string;
@@ -21,7 +21,7 @@ const AllocationHistorySchema = new Schema(
     previousRoomId: { type: Schema.Types.ObjectId, ref: 'Room' },
     event: {
       type: String,
-      enum: ['ALLOCATED', 'TRANSFERRED', 'CANCELLED', 'REASSIGNED', 'OVERRIDDEN'],
+      enum: ['ALLOCATED', 'TRANSFERRED', 'CANCELLED', 'REASSIGNED', 'OVERRIDDEN', 'VACATED'],
       required: true,
     },
     score: { type: Number },

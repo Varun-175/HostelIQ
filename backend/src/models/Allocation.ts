@@ -21,6 +21,8 @@ export interface IAllocation extends Document {
   };
   reason: string;
   allocatedAt: Date;
+  startsAt?: Date;
+  endsAt?: Date;
   allocatedBy?: 'SYSTEM' | 'ADMIN';
   override?: boolean;
   overrideReason?: string;
@@ -69,6 +71,8 @@ const allocationSchema = new Schema<IAllocation>(
       type: Date,
       default: Date.now,
     },
+    startsAt: { type: Date, default: Date.now },
+    endsAt: { type: Date, required: true, index: true },
     allocatedBy: {
       type: String,
       enum: ['SYSTEM', 'ADMIN'],
