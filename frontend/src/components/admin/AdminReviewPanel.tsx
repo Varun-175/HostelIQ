@@ -17,6 +17,8 @@ export default function AdminReviewPanel({ allocationId, onComplete }: AdminRevi
   const [showOverride, setShowOverride] = useState(false);
   const [overrideRoom, setOverrideRoom] = useState('');
   const [overrideReason, setOverrideReason] = useState('');
+  const [action, setAction] = useState<'approve' | 'override' | null>(null);
+  const [error, setError] = useState('');
 
   useEffect(() => {
     reviewAllocation(allocationId).then(setRequest).catch(console.error);
@@ -24,21 +26,29 @@ export default function AdminReviewPanel({ allocationId, onComplete }: AdminRevi
 
   const handleApprove = async () => {
     if (!request) return;
+    setAction('approve');
+    setError('');
     try {
       await approveAllocation(request._id);
       onComplete();
     } catch (error) {
-      console.error(error);
+      setError((error as any).response?.data?.message || 'Approval failed. Please try again.');
+    } finally {
+      setAction(null);
     }
   };
 
   const handleOverride = async () => {
     if (!overrideRoom || !overrideReason || !request) return;
+    setAction('override');
+    setError('');
     try {
       await overrideAllocation(request._id, overrideRoom, overrideReason);
       onComplete();
     } catch (error) {
-      console.error(error);
+      setError((error as any).response?.data?.message || 'Override failed. Please try again.');
+    } finally {
+      setAction(null);
     }
   };
 
@@ -57,6 +67,7 @@ export default function AdminReviewPanel({ allocationId, onComplete }: AdminRevi
           </div>
         </CardHeader>
         <CardContent className="space-y-6 pt-6">
+          {error && <p className="rounded-lg border border-danger-200 bg-danger-50 px-3 py-2 text-sm text-danger-700" role="alert">{error}</p>}
           <div>
             <h4 className="text-sm font-semibold text-slate-900 mb-2">Proposed Room</h4>
             <div className="p-4 bg-primary-50 border border-primary-100 rounded-lg">
@@ -87,8 +98,8 @@ export default function AdminReviewPanel({ allocationId, onComplete }: AdminRevi
           </div>
 
           <div className="flex justify-end gap-3 pt-4 border-t border-slate-100">
-            <Button variant="outline" onClick={() => setShowOverride(true)}>Override</Button>
-            <Button onClick={handleApprove}>Approve Allocation</Button>
+            <Button variant="outline" onClick={() => setShowOverride(true)} disabled={!!action}>Override</Button>
+            <Button onClick={handleApprove} isLoading={action === 'approve'}>Approve Allocation</Button>
           </div>
         </CardContent>
       </Card>
@@ -100,7 +111,7 @@ export default function AdminReviewPanel({ allocationId, onComplete }: AdminRevi
         footer={
           <>
             <Button variant="ghost" onClick={() => setShowOverride(false)}>Cancel</Button>
-            <Button variant="danger" onClick={handleOverride}>Confirm Override</Button>
+            <Button variant="danger" onClick={handleOverride} isLoading={action === 'override'}>Confirm Override</Button>
           </>
         }
       >

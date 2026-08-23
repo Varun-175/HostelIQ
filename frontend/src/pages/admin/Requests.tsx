@@ -3,9 +3,11 @@ import RequestQueue from '../../components/admin/RequestQueue';
 import AdminReviewPanel from '../../components/admin/AdminReviewPanel';
 import { Card, CardContent } from '../../components/ui/Card';
 import { AlertCircle } from 'lucide-react';
+import { CheckCircle2 } from 'lucide-react';
 
 export default function AdminRequests() {
   const [selectedRequest, setSelectedRequest] = useState<string | null>(null);
+  const [notice, setNotice] = useState('');
 
   return (
     <div className="space-y-6">
@@ -25,7 +27,7 @@ export default function AdminRequests() {
 
         <div>
           {selectedRequest ? (
-            <AdminReviewPanel allocationId={selectedRequest} onComplete={() => setSelectedRequest(null)} />
+            <AdminReviewPanel allocationId={selectedRequest} onComplete={() => { setSelectedRequest(null); setNotice('Allocation updated successfully.'); }} />
           ) : (
             <Card className="border-2 border-dashed border-slate-200 bg-slate-50 shadow-none">
               <CardContent className="flex h-[500px] flex-col items-center justify-center text-center">
@@ -41,6 +43,7 @@ export default function AdminRequests() {
           )}
         </div>
       </div>
+      {notice && <div className="flex items-center gap-2 rounded-xl border border-success-200 bg-success-50 px-4 py-3 text-sm font-medium text-success-700" role="status"><CheckCircle2 className="h-4 w-4" />{notice}</div>}
     </div>
   );
 }

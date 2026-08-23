@@ -8,7 +8,7 @@ import { login as loginApi } from '../api/auth.api';
 
 const ROLES = [
   { role: 'STUDENT' as const, label: 'Student', icon: BedDouble, token: 'STUDENT_TOKEN', user: { id: '60d5ec49c6396b2e1480f004', name: 'Varun A K', email: 'varun@student.com', role: 'STUDENT' as const, permissions: ['allocation.request'] }, redirect: '/student' },
-  { role: 'WARDEN' as const, label: 'Warden', icon: Shield, token: 'WARDEN_TOKEN', user: { id: '60d5ec49c6396b2e1480f003', name: 'Warden Singh', email: 'warden@hosteliq.com', role: 'WARDEN' as const, permissions: ['allocation.approve', 'student.read', 'room.read'] }, redirect: '/admin' },
+  { role: 'WARDEN' as const, label: 'Warden', icon: Shield, token: 'WARDEN_TOKEN', user: { id: '60d5ec49c6396b2e1480f003', name: 'Warden Singh', email: 'warden@hosteliq.com', role: 'WARDEN' as const, permissions: ['allocation.approve', 'allocation.manage', 'student.read', 'room.read', 'analytics.read'] }, redirect: '/admin' },
   { role: 'HOSTEL_ADMIN' as const, label: 'Admin', icon: Building, token: 'HOSTEL_ADMIN_TOKEN', user: { id: '60d5ec49c6396b2e1480f002', name: 'Admin Sharma', email: 'admin@hosteliq.com', role: 'HOSTEL_ADMIN' as const, permissions: ['room.manage', 'allocation.manage', 'student.read', 'analytics.read'] }, redirect: '/admin' },
   { role: 'SUPER_ADMIN' as const, label: 'Super Admin', icon: Sparkles, token: 'SUPER_ADMIN_TOKEN', user: { id: '60d5ec49c6396b2e1480f001', name: 'Super Admin', email: 'super@hosteliq.com', role: 'SUPER_ADMIN' as const, permissions: ['*'] }, redirect: '/admin' },
 ];
@@ -53,7 +53,7 @@ export default function Login() {
 
           <form onSubmit={handleLogin} className="space-y-6">
             <div className="space-y-4">
-              <div className="flex gap-2 p-1 bg-slate-100 rounded-xl">
+              <div className="grid grid-cols-2 gap-2 p-1 bg-slate-100 rounded-xl sm:grid-cols-4">
                 {ROLES.map((roleConfig) => {
                   const Icon = roleConfig.icon;
                   const isSelected = selectedRole.role === roleConfig.role;
@@ -62,7 +62,7 @@ export default function Login() {
                       key={roleConfig.role}
                       type="button"
                       onClick={() => setSelectedRole(roleConfig)}
-                      className={`flex-1 flex items-center justify-center gap-2 py-2 text-sm font-medium rounded-lg transition-all ${
+                      className={`flex min-w-0 items-center justify-center gap-2 rounded-lg px-2 py-2 text-sm font-medium transition-all ${
                         isSelected ? 'bg-white text-primary-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'
                       }`}
                     >

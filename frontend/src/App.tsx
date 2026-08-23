@@ -17,7 +17,7 @@ import AdminAnalytics from './pages/admin/Analytics';
 import AdminAuditLog from './pages/admin/Audit';
 
 function AppRoutes() {
-  const { isAuthenticated, user, isLoading } = useAuth();
+  const { isAuthenticated, user, isLoading, hasPermission } = useAuth();
 
   // CRITICAL: Wait for auth state to hydrate from localStorage before
   // evaluating any route guards. Without this, a direct navigation to
@@ -55,11 +55,11 @@ function AppRoutes() {
         isAuthenticated && user?.role !== 'STUDENT' ? <AppShell /> : <Navigate to="/login" />
       }>
         <Route index element={<AdminDashboard />} />
-        <Route path="requests" element={<AdminRequests />} />
-        <Route path="rooms" element={<AdminRooms />} />
-        <Route path="students" element={<AdminStudents />} />
-        <Route path="analytics" element={<AdminAnalytics />} />
-        <Route path="audit" element={<AdminAuditLog />} />
+        <Route path="requests" element={hasPermission('allocation.manage') ? <AdminRequests /> : <Navigate to="/admin" replace />} />
+        <Route path="rooms" element={hasPermission('room.manage') ? <AdminRooms /> : <Navigate to="/admin" replace />} />
+        <Route path="students" element={hasPermission('student.read') ? <AdminStudents /> : <Navigate to="/admin" replace />} />
+        <Route path="analytics" element={hasPermission('analytics.read') ? <AdminAnalytics /> : <Navigate to="/admin" replace />} />
+        <Route path="audit" element={hasPermission('analytics.read') ? <AdminAuditLog /> : <Navigate to="/admin" replace />} />
       </Route>
 
       {/* Catch-all */}

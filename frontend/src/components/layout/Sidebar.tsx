@@ -8,7 +8,7 @@ interface SidebarProps {
 }
 
 export default function Sidebar({ onClose }: SidebarProps) {
-  const { user, logout } = useAuth();
+  const { user, logout, hasPermission } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -20,14 +20,14 @@ export default function Sidebar({ onClose }: SidebarProps) {
 
   const adminLinks = [
     { to: '/admin', icon: Home, label: 'Dashboard' },
-    { to: '/admin/requests', icon: FileText, label: 'Requests Queue' },
-    { to: '/admin/rooms', icon: BedDouble, label: 'Room Management' },
-    { to: '/admin/students', icon: Users, label: 'Student Directory' },
-    { to: '/admin/analytics', icon: BarChart3, label: 'Analytics' },
-    { to: '/admin/audit', icon: Clock, label: 'Audit Log' },
+    { to: '/admin/requests', icon: FileText, label: 'Requests Queue', permission: 'allocation.manage' },
+    { to: '/admin/rooms', icon: BedDouble, label: 'Room Management', permission: 'room.manage' },
+    { to: '/admin/students', icon: Users, label: 'Student Directory', permission: 'student.read' },
+    { to: '/admin/analytics', icon: BarChart3, label: 'Analytics', permission: 'analytics.read' },
+    { to: '/admin/audit', icon: Clock, label: 'Audit Log', permission: 'analytics.read' },
   ];
 
-  const links = user?.role === 'STUDENT' ? studentLinks : adminLinks;
+  const links = user?.role === 'STUDENT' ? studentLinks : adminLinks.filter((link) => !link.permission || hasPermission(link.permission));
 
   const handleLogout = () => {
     logout();

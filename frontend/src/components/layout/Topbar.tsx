@@ -33,7 +33,7 @@ export default function Topbar({ onMenuClick }: TopbarProps) {
   };
 
   return (
-    <header className="sticky top-0 z-30 flex h-16 shrink-0 items-center gap-4 border-b border-slate-200/50 bg-white/70 px-4 backdrop-blur-xl transition-all sm:px-6 lg:px-8">
+    <header className="sticky top-0 z-30 flex h-16 shrink-0 items-center gap-4 border-b border-slate-200/60 bg-white/80 px-4 shadow-[0_8px_30px_rgba(15,23,42,0.04)] backdrop-blur-xl transition-all sm:px-6 lg:px-8">
       <button
         onClick={onMenuClick}
         className="text-slate-500 hover:text-slate-900 lg:hidden"
