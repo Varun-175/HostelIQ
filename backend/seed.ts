@@ -32,6 +32,8 @@ const rooms = [
   { roomNo: 402, floor: 4, capacity: 2, roomType: 'DOUBLE' }, // Will be seeded as partial? Or left empty for now.
 ];
 
+import { User } from './src/models/User';
+
 const seedData = async () => {
   try {
     const mongoUri = process.env.MONGODB_URI;
@@ -40,13 +42,20 @@ const seedData = async () => {
     await mongoose.connect(mongoUri);
     console.log('MongoDB Connected for Seeding');
 
-    console.log('Clearing old Room and Allocation data...');
+    console.log('Clearing old Room, Allocation, and User data...');
     // We do NOT clear students to prevent data loss
     await Room.deleteMany({});
     await Allocation.deleteMany({});
+    await User.deleteMany({});
 
     console.log('Inserting Rooms...');
     await Room.insertMany(rooms);
+
+    console.log('Inserting Admin Users...');
+    await User.create([
+      { email: 'admin@hosteliq.com', name: 'Super Admin', role: 'SUPER_ADMIN', permissions: ['*'] },
+      { email: 'warden@hosteliq.com', name: 'Warden 1', role: 'WARDEN', permissions: ['allocation.approve', 'student.read', 'room.read'] }
+    ]);
 
     console.log(`Seeded ${rooms.length} rooms successfully!`);
     process.exit(0);
