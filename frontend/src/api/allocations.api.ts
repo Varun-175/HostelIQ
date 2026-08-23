@@ -58,3 +58,8 @@ export const getStudentAllocation = async (studentId: string): Promise<Allocatio
     throw error;
   }
 };
+
+export const getStudentAllocationHistory = async (studentId: string) => {
+  const response = await apiClient.get(`/allocations/${studentId}/history`);
+  return response.data.data;
+};

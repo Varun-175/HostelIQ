@@ -4,7 +4,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { BedDouble, Shield, Sparkles, Building, Lock, Mail, ChevronRight } from 'lucide-react';
 import { Input } from '../components/ui/Input';
 import { Button } from '../components/ui/Button';
-import { createStudent, getStudents } from '../api/students.api';
+import { login as loginApi } from '../api/auth.api';
 
 const ROLES = [
   { role: 'STUDENT' as const, label: 'Student', icon: BedDouble, token: 'STUDENT_TOKEN', user: { id: '60d5ec49c6396b2e1480f004', name: 'Varun A K', email: 'varun@student.com', role: 'STUDENT' as const, permissions: ['allocation.request'] }, redirect: '/student' },
@@ -17,26 +17,20 @@ export default function Login() {
   const { login } = useAuth();
   const navigate = useNavigate();
   const [selectedRole, setSelectedRole] = useState(ROLES[0]);
+  const [password, setPassword] = useState('HostelIQ@2026');
+  const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
+    setError('');
     try {
-      let user = selectedRole.user;
-      if (selectedRole.role === 'STUDENT') {
-        const students = await getStudents();
-        const student = students[0] || await createStudent({
-          name: 'Demo Student',
-          registerNo: `DEMO${Date.now()}`,
-          department: 'CSE',
-          year: 3,
-          preferences: { roomType: 'DOUBLE' },
-        });
-        user = { ...user, id: student._id, name: student.name };
-      }
-      login(selectedRole.token, user);
+      const result = await loginApi(selectedRole.user.email, password);
+      login(result.token, result.user);
       navigate(selectedRole.redirect);
+    } catch (requestError: any) {
+      setError(requestError.response?.data?.message || 'Unable to sign in right now.');
     } finally {
       setIsLoading(false);
     }
@@ -105,13 +99,15 @@ export default function Login() {
                   </div>
                   <Input 
                     type="password" 
-                    value="••••••••••••" 
-                    readOnly
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
                     className="pl-10 bg-slate-50 border-slate-200 text-lg tracking-widest"
                   />
                 </div>
               </div>
             </div>
+
+            {error && <p className="rounded-lg border border-danger-200 bg-danger-50 px-3 py-2 text-sm text-danger-700" role="alert">{error}</p>}
 
             <Button type="submit" className="w-full group" size="lg" isLoading={isLoading}>
               Sign In

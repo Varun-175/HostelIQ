@@ -57,6 +57,11 @@ export const reviewAllocation = async (allocationId: string) => {
   return response.data.data;
 };
 
+export const approveAllocation = async (allocationId: string) => {
+  const response = await apiClient.post(`/admin/allocations/${allocationId}/approve`);
+  return response.data.data;
+};
+
 export const overrideAllocation = async (allocationId: string, roomId: string, reason: string) => {
   const response = await apiClient.post(`/admin/allocations/${allocationId}/override`, { roomId, reason });
   return response.data.data;

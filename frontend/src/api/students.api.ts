@@ -34,6 +34,11 @@ export const createStudent = async (data: Omit<StudentProfile, '_id' | 'allocati
   return response.data.data;
 };
 
+export const deleteStudent = async (id: string): Promise<StudentProfile> => {
+  const response = await apiClient.delete(`/students/${id}`);
+  return response.data.data;
+};
+
 export const updateStudentPreferences = async (id: string, preferences: StudentPreferences): Promise<StudentProfile> => {
   const response = await apiClient.put(`/students/${id}`, { preferences });
   return response.data.data;

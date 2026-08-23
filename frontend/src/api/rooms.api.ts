@@ -40,3 +40,13 @@ export const createRoom = async (data: Partial<Room>): Promise<Room> => {
   const response = await apiClient.post('/rooms', data);
   return response.data.data;
 };
+
+export const updateRoom = async (roomNo: number, data: Partial<Room>): Promise<Room> => {
+  const response = await apiClient.put(`/rooms/${roomNo}`, data);
+  return response.data.data;
+};
+
+export const deleteRoom = async (roomNo: number): Promise<Room> => {
+  const response = await apiClient.delete(`/rooms/${roomNo}`);
+  return response.data.data;
+};

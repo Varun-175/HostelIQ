@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { AllocationResponse } from '../../api/allocations.api';
-import { reviewAllocation, overrideAllocation } from '../../api/admin.api';
+import { reviewAllocation, approveAllocation, overrideAllocation } from '../../api/admin.api';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../ui/Card';
 import { Button } from '../ui/Button';
 import { Badge } from '../ui/Badge';
@@ -23,9 +23,13 @@ export default function AdminReviewPanel({ allocationId, onComplete }: AdminRevi
   }, [allocationId]);
 
   const handleApprove = async () => {
-    // Actually the mock backend doesn't have an approve endpoint yet for admins, 
-    // it automatically approves via SmartFit. Admin can just close.
-    onComplete();
+    if (!request) return;
+    try {
+      await approveAllocation(request._id);
+      onComplete();
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   const handleOverride = async () => {
