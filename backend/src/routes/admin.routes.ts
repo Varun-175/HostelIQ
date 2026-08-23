@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import * as adminController from '../controllers/admin.controller';
 import { authenticate } from '../middleware/authMiddleware';
-import { authorizePermission } from '../middleware/rbacMiddleware';
+import { authorizeAnyPermission, authorizePermission } from '../middleware/rbacMiddleware';
 
 const router = Router();
 
@@ -40,7 +40,7 @@ router.get(
 
 router.post(
   '/allocations/:id/approve',
-  authorizePermission('allocation.manage'),
+  authorizeAnyPermission(['allocation.approve', 'allocation.manage']),
   adminController.approveAllocation
 );
 
