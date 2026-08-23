@@ -16,6 +16,7 @@ import roomRoutes from './routes/room.routes';
 import allocationRoutes from './routes/allocation.routes';
 import analyticsRoutes from './routes/analytics.routes';
 import searchRoutes from './routes/search.routes';
+import adminRoutes from './routes/admin.routes';
 
 // Routes
 app.use('/api/students', studentRoutes);
@@ -23,6 +24,7 @@ app.use('/api/rooms', roomRoutes);
 app.use('/api/allocations', allocationRoutes);
 app.use('/api/analytics', analyticsRoutes);
 app.use('/api/search', searchRoutes);
+app.use('/api/admin', adminRoutes);
 
 // Health Endpoint
 app.get('/api/health', (req, res) => {
