@@ -44,10 +44,10 @@ export default function RequestQueue({ limit, resolvedIds = [], onSelectRequest 
   return (
     <div className="space-y-4">
       {requests.map(req => (
-        <Card key={req._id} className="flex flex-col md:flex-row items-center justify-between p-4 transition-colors hover:bg-slate-50">
-          <div className="mb-4 flex-1 md:mb-0">
-            <div className="flex items-center gap-3">
-              <span className="font-medium text-slate-900">Student: {req.studentId?.name || req.studentId}</span>
+        <Card key={req._id} className="group flex min-w-0 flex-col gap-4 p-4 transition-colors hover:bg-white md:flex-row md:items-center md:justify-between">
+          <div className="min-w-0 flex-1">
+            <div className="flex min-w-0 flex-wrap items-center gap-3">
+              <span className="truncate font-semibold text-slate-900">{req.studentId?.name || req.studentId}</span>
               <Badge variant={req.status === 'ALLOCATED' ? 'success' : 'warning'}>
                 {req.status} · SmartFit: {Math.round(req.totalScore)}
               </Badge>
@@ -56,9 +56,9 @@ export default function RequestQueue({ limit, resolvedIds = [], onSelectRequest 
               Proposed Match: Room {req.roomNo}
             </p>
           </div>
-          <div className="flex gap-2">
-            <Button variant="outline" size="sm" onClick={() => onSelectRequest && onSelectRequest(req._id)}>Review Details</Button>
-            <Button size="sm" onClick={() => onSelectRequest && onSelectRequest(req._id)}>Approve</Button>
+          <div className="flex w-full shrink-0 gap-2 md:w-auto">
+            <Button className="flex-1 md:flex-none" variant="outline" size="sm" onClick={() => onSelectRequest && onSelectRequest(req._id)}>Review Details</Button>
+            <Button className="flex-1 md:flex-none" size="sm" onClick={() => onSelectRequest && onSelectRequest(req._id)}>Approve</Button>
           </div>
         </Card>
       ))}

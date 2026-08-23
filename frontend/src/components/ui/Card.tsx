@@ -2,9 +2,7 @@ import { HTMLAttributes } from 'react';
 import { cn } from './Button';
 
 export function Card({ className, ...props }: HTMLAttributes<HTMLDivElement>) {
-  return (
-    <div className={cn("rounded-2xl border border-slate-200/60 bg-white shadow-xl shadow-slate-200/40 transition-all hover:shadow-2xl hover:shadow-slate-200/50", className)} {...props} />
-  );
+  return <div className={cn("surface-panel rounded-[1.25rem] transition-all hover:-translate-y-0.5 hover:shadow-2xl hover:shadow-slate-300/30", className)} {...props} />;
 }
 
 export function CardHeader({ className, ...props }: HTMLAttributes<HTMLDivElement>) {

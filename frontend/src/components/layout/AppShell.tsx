@@ -13,7 +13,7 @@ export default function AppShell() {
   }, [location]);
 
   return (
-    <div className="flex h-screen bg-slate-50 overflow-hidden">
+    <div className="app-canvas flex h-screen overflow-hidden">
       {/* Mobile sidebar overlay */}
       {sidebarOpen && (
         <div 
@@ -33,8 +33,9 @@ export default function AppShell() {
       <div className="flex flex-1 flex-col overflow-hidden relative">
         <Topbar onMenuClick={() => setSidebarOpen(true)} />
         
-        <main className="flex-1 overflow-y-auto overflow-x-hidden p-4 sm:p-6 lg:p-8">
-          <div className="mx-auto max-w-7xl animate-fade-in">
+        <main className="relative flex-1 overflow-y-auto overflow-x-hidden p-4 sm:p-6 lg:p-8">
+          <div className="pointer-events-none absolute inset-0 opacity-40 [background-image:linear-gradient(rgba(148,163,184,.08)_1px,transparent_1px),linear-gradient(90deg,rgba(148,163,184,.08)_1px,transparent_1px)] [background-size:32px_32px]" />
+          <div className="relative mx-auto max-w-[1440px] animate-fade-in">
             <Outlet />
           </div>
         </main>

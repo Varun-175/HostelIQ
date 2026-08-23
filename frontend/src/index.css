@@ -66,6 +66,10 @@
     font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
   }
 
+  #root {
+    min-height: 100vh;
+  }
+
   h1, h2, h3, h4, button, [class*="font-bold"] {
     font-family: 'Space Grotesk', 'DM Sans', sans-serif;
   }
@@ -187,6 +191,17 @@
     border: 1px solid rgba(148, 163, 184, 0.18);
     box-shadow: 0 18px 45px rgba(15, 23, 42, 0.06);
     backdrop-filter: blur(18px);
+  }
+
+  .app-canvas {
+    background: #f4f7fb;
+    background-image: radial-gradient(circle at 15% -10%, rgba(34, 211, 238, 0.16), transparent 28rem), radial-gradient(circle at 88% 8%, rgba(251, 191, 36, 0.1), transparent 24rem);
+  }
+
+  .sidebar-surface {
+    background: linear-gradient(165deg, #101936 0%, #11152c 56%, #0a1022 100%);
+    border-right: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 14px 0 40px rgba(15, 23, 42, 0.12);
   }
 
   .focus-ring:focus-visible {

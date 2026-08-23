@@ -23,16 +23,16 @@ export default function AdminRequests() {
         <p className="text-slate-500">Review and approve student room allocations.</p>
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-3">
-        <div className="lg:col-span-2">
+      <div className="grid min-w-0 gap-6 lg:grid-cols-[minmax(0,1.7fr)_minmax(320px,1fr)]">
+        <div className="min-w-0">
           <Card className="border-0 shadow-xl shadow-slate-200/50">
-            <CardContent className="p-6">
+            <CardContent className="min-w-0 p-4 sm:p-6">
               <RequestQueue resolvedIds={resolvedIds} onSelectRequest={setSelectedRequest} />
             </CardContent>
           </Card>
         </div>
 
-        <div>
+        <div className="min-w-0">
           {selectedRequest ? (
             <AdminReviewPanel allocationId={selectedRequest} onComplete={handleComplete} />
           ) : (
