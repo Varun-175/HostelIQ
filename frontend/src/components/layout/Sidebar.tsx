@@ -2,6 +2,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { Home, BedDouble, FileText, Users, BarChart3, LogOut, Search, Clock, History } from 'lucide-react';
 import { cn } from '../ui/Button';
+import { Logo } from '../ui/Logo';
 
 interface SidebarProps {
   onClose?: () => void;
@@ -37,12 +38,7 @@ export default function Sidebar({ onClose }: SidebarProps) {
   return (
     <aside className="sidebar-surface flex h-full w-72 flex-col text-slate-300">
       <div className="flex h-20 items-center px-6">
-        <div className="flex items-center gap-3">
-          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-accent-400 to-primary-500 shadow-lg shadow-accent-500/20">
-            <BedDouble className="h-5 w-5 text-white" />
-          </div>
-          <span className="text-xl font-bold tracking-tight text-white">Hostel<span className="text-accent-300">IQ</span></span>
-        </div>
+        <Logo labelClassName="text-white text-xl" />
       </div>
 
       <nav className="flex-1 space-y-2 overflow-y-auto px-4 py-6 scrollbar-thin scrollbar-thumb-white/10">

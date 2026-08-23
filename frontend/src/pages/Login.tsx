@@ -5,6 +5,7 @@ import { BedDouble, Shield, Sparkles, Building, Lock, Mail, ChevronRight } from 
 import { Input } from '../components/ui/Input';
 import { Button } from '../components/ui/Button';
 import { login as loginApi } from '../api/auth.api';
+import { Logo } from '../components/ui/Logo';
 
 const ROLES = [
   { role: 'STUDENT' as const, label: 'Student', icon: BedDouble, token: 'STUDENT_TOKEN', user: { id: '60d5ec49c6396b2e1480f004', name: 'Varun A K', email: 'varun@student.com', role: 'STUDENT' as const, permissions: ['allocation.request'] }, redirect: '/student' },
@@ -42,10 +43,7 @@ export default function Login() {
       <div className="flex w-full flex-col justify-center px-8 lg:w-1/2 lg:px-24 xl:px-32 relative z-10 bg-white shadow-2xl">
         <div className="mx-auto w-full max-w-md animate-slide-up">
           <div className="mb-10 flex items-center gap-3">
-            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-primary-600 to-indigo-600 shadow-xl shadow-primary-500/30">
-              <BedDouble className="h-6 w-6 text-white" />
-            </div>
-            <span className="text-2xl font-black tracking-tight text-slate-900">HostelIQ</span>
+            <Logo labelClassName="text-2xl font-black" />
           </div>
 
           <h1 className="text-3xl font-bold tracking-tight text-slate-900 mb-2">Welcome back</h1>

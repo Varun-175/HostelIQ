@@ -2,6 +2,7 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import Login from './pages/Login';
 import AppShell from './components/layout/AppShell';
+import { Logo } from './components/ui/Logo';
 
 // Student Pages
 import StudentDashboard from './pages/student/Dashboard';
@@ -27,7 +28,7 @@ function AppRoutes() {
     return (
       <div className="flex h-screen w-screen items-center justify-center bg-slate-50">
         <div className="flex flex-col items-center gap-4 animate-pulse">
-          <div className="h-12 w-12 rounded-2xl bg-gradient-to-br from-primary-600 to-indigo-600 shadow-xl" />
+          <Logo compact className="animate-pulse" />
           <span className="text-sm font-medium text-slate-400">Loading HostelIQ…</span>
         </div>
       </div>
