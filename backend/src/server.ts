@@ -18,6 +18,7 @@ import allocationRoutes from './routes/allocation.routes';
 import analyticsRoutes from './routes/analytics.routes';
 import searchRoutes from './routes/search.routes';
 import adminRoutes from './routes/admin.routes';
+import { releaseExpiredAllocations } from './services/allocation.service';
 import authRoutes from './routes/auth.routes';
 
 // Routes
@@ -56,6 +57,10 @@ connectDB().then(() => {
   app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
   });
+  const expiryInterval = setInterval(() => {
+    releaseExpiredAllocations().catch((error) => console.error('Allocation expiry worker failed:', error));
+  }, 60_000);
+  expiryInterval.unref();
 }).catch(() => {
   process.exitCode = 1;
 });
