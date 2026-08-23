@@ -1,19 +1,38 @@
 import { Room, IRoom } from '../models/Room';
 
 export const getRooms = async (): Promise<IRoom[]> => {
-  return await Room.find().sort({ roomNo: 1 });
+  const rooms = await Room.find().sort({ roomNo: 1 });
+  return rooms.map((room) => normalizeRoom(room));
 };
 
 export const getAvailableRooms = async (): Promise<IRoom[]> => {
   const rooms = await getRooms();
-  return rooms.filter(room => room.occupants.length < room.capacity);
+  return rooms.filter(room => room.status === 'AVAILABLE' && room.occupants.length < room.capacity);
 };
 
 export const getRoomByNo = async (roomNo: number): Promise<IRoom | null> => {
-  return await Room.findOne({ roomNo }).populate('occupants', 'name registerNo department year');
+  const room = await Room.findOne({ roomNo }).populate('occupants', 'name registerNo department year');
+  return room ? normalizeRoom(room) : null;
 };
 
 export const createRoom = async (data: Partial<IRoom>): Promise<IRoom> => {
   const room = new Room(data);
+  normalizeRoom(room);
   return await room.save();
+};
+
+const normalizeRoom = (room: IRoom): IRoom => {
+  const occupantCount = room.occupants.length;
+  room.occupancy = {
+    current: occupantCount,
+    available: Math.max(0, room.capacity - occupantCount),
+  };
+
+  if (room.status !== 'MAINTENANCE' && room.status !== 'RESERVED') {
+    room.status = occupantCount === 0
+      ? 'AVAILABLE'
+      : occupantCount >= room.capacity ? 'FULL' : 'PARTIAL';
+  }
+
+  return room;
 };

@@ -44,4 +44,10 @@ router.post(
   adminController.overrideAllocation
 );
 
+router.get(
+  '/audit-logs',
+  authorizePermission('analytics.read'),
+  adminController.getAuditLogs
+);
+
 export default router;

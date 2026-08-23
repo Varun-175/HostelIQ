@@ -13,9 +13,10 @@ export const getAnalytics = async () => {
 
   rooms.forEach(room => {
     totalCapacity += room.capacity;
-    usedCapacity += room.occupants.length;
+    const occupantCount = room.occupants.length;
+    usedCapacity += occupantCount;
 
-    if (room.occupants.length >= room.capacity) {
+    if (occupantCount >= room.capacity) {
       occupiedRooms++;
     } else {
       availableRooms++; // Either fully empty or partially empty is "available" to allocate

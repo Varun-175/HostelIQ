@@ -23,7 +23,7 @@ export const allocateStudent = async (studentId: string): Promise<IAllocation> =
 
     // Use find for all rooms, then filter in memory for SmartFit (existing behavior)
     const rooms = await Room.find().session(session);
-    const availableRooms = rooms.filter(r => (r.occupancy?.current || r.occupants.length) < r.capacity && r.status === 'AVAILABLE');
+    const availableRooms = rooms.filter(r => r.occupants.length < r.capacity && r.status === 'AVAILABLE');
 
     if (availableRooms.length === 0) {
       throw new Error('No available rooms');
@@ -47,6 +47,7 @@ export const allocateStudent = async (studentId: string): Promise<IAllocation> =
     );
     
     if (!selectedRoom) throw new Error('Concurrency Error: Room became full during allocation');
+    await selectedRoom.save({ session });
 
     // Update Student allocation status
     student.allocation = {

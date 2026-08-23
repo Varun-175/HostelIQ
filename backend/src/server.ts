@@ -1,6 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
+import mongoose from 'mongoose';
 import { connectDB } from './config/database';
 
 dotenv.config();
@@ -28,10 +29,11 @@ app.use('/api/admin', adminRoutes);
 
 // Health Endpoint
 app.get('/api/health', (req, res) => {
+  const databaseState = ['disconnected', 'connected', 'connecting', 'disconnecting'][mongoose.connection.readyState] || 'unknown';
   res.status(200).json({
     success: true,
     service: 'HostelIQ API',
-    database: 'connected', // We can improve this by checking mongoose connection state if needed
+    database: databaseState,
   });
 });
 
@@ -52,4 +54,6 @@ connectDB().then(() => {
   app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
   });
+}).catch(() => {
+  process.exitCode = 1;
 });

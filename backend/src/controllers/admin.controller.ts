@@ -1,4 +1,5 @@
 import { Request, Response } from 'express';
+import mongoose from 'mongoose';
 import { Student } from '../models/Student';
 import { Room } from '../models/Room';
 import { AllocationRequest } from '../models/AllocationRequest';
@@ -24,7 +25,7 @@ export const getDashboard = async (req: Request, res: Response) => {
     for (const room of rooms) {
       totalBeds += room.capacity;
       
-      const currentOccupancy = room.occupancy?.current || room.occupants.length;
+      const currentOccupancy = room.occupants.length;
       occupiedBeds += currentOccupancy;
 
       if (room.status === 'MAINTENANCE') {
@@ -120,7 +121,10 @@ export const createRoom = async (req: Request, res: Response) => {
 export const updateRoomStatus = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const { status } = req.body; // e.g. MAINTENANCE, AVAILABLE
+    const { status } = req.body;
+    if (!['AVAILABLE', 'MAINTENANCE', 'RESERVED'].includes(status)) {
+      return res.status(400).json({ success: false, message: 'Invalid room status' });
+    }
 
     const room = await Room.findById(id);
     if (!room) return res.status(404).json({ success: false, message: 'Room not found' });
@@ -148,7 +152,10 @@ export const updateRoomStatus = async (req: Request, res: Response) => {
 
 export const reviewAllocation = async (req: Request, res: Response) => {
   try {
-    const { id } = req.params; // request id or allocation id
+    const { id } = req.params;
+    if (!mongoose.isValidObjectId(id)) {
+      return res.status(400).json({ success: false, message: 'Invalid allocation ID' });
+    }
     const allocation = await Allocation.findById(id).populate('studentId roomId');
     if (!allocation) return res.status(404).json({ success: false, message: 'Allocation not found' });
     
@@ -164,14 +171,22 @@ export const overrideAllocation = async (req: Request, res: Response) => {
     const { id } = req.params; // allocation id
     const { roomId, reason } = req.body;
 
+    if (!mongoose.isValidObjectId(id)) {
+      return res.status(400).json({ success: false, message: 'Invalid allocation ID' });
+    }
     const allocation = await Allocation.findById(id);
     if (!allocation) return res.status(404).json({ success: false, message: 'Allocation not found' });
 
-    const newRoom = await Room.findById(roomId);
+    const newRoom = mongoose.isValidObjectId(roomId)
+      ? await Room.findById(roomId)
+      : await Room.findOne({ roomNo: Number(roomId) });
     if (!newRoom) return res.status(404).json({ success: false, message: 'Target room not found' });
+    if (allocation.roomId?.toString() === newRoom._id.toString()) {
+      return res.status(400).json({ success: false, message: 'Allocation is already in this room' });
+    }
 
     // Validate capacity
-    const currentOccupancy = newRoom.occupancy?.current || newRoom.occupants.length;
+    const currentOccupancy = newRoom.occupants.length;
     if (currentOccupancy >= newRoom.capacity) {
       return res.status(400).json({ success: false, message: 'Room is at full capacity' });
     }
@@ -180,13 +195,30 @@ export const overrideAllocation = async (req: Request, res: Response) => {
 
     // Update old room (simplified)
     if (previousRoomId) {
-       await Room.findByIdAndUpdate(previousRoomId, { $pull: { occupants: allocation.studentId } });
+      const previousRoom = await Room.findById(previousRoomId);
+      if (previousRoom) {
+        previousRoom.occupants = previousRoom.occupants.filter(
+          occupant => occupant.toString() !== allocation.studentId.toString()
+        );
+        previousRoom.occupancy = {
+          current: previousRoom.occupants.length,
+          available: Math.max(0, previousRoom.capacity - previousRoom.occupants.length),
+        };
+        if (previousRoom.status !== 'MAINTENANCE' && previousRoom.status !== 'RESERVED') {
+          previousRoom.status = previousRoom.occupants.length === 0 ? 'AVAILABLE' : 'PARTIAL';
+        }
+        await previousRoom.save();
+      }
     }
 
     // Update new room
     newRoom.occupants.push(allocation.studentId);
-    if (newRoom.occupancy) {
-      newRoom.occupancy.current += 1;
+    newRoom.occupancy = {
+      current: newRoom.occupants.length,
+      available: Math.max(0, newRoom.capacity - newRoom.occupants.length),
+    };
+    if (newRoom.status !== 'MAINTENANCE' && newRoom.status !== 'RESERVED') {
+      newRoom.status = newRoom.occupants.length >= newRoom.capacity ? 'FULL' : 'PARTIAL';
     }
     await newRoom.save();
 
@@ -197,6 +229,9 @@ export const overrideAllocation = async (req: Request, res: Response) => {
     allocation.overrideReason = reason;
     allocation.allocatedBy = 'ADMIN';
     await allocation.save();
+    await Student.findByIdAndUpdate(allocation.studentId, {
+      allocation: { roomNo: newRoom.roomNo, score: allocation.totalScore },
+    });
 
     // Create Audit Log
     await AuditLog.create({
@@ -209,6 +244,15 @@ export const overrideAllocation = async (req: Request, res: Response) => {
     });
 
     res.status(200).json({ success: true, data: allocation });
+  } catch (error: any) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+export const getAuditLogs = async (req: Request, res: Response) => {
+  try {
+    const logs = await AuditLog.find().sort({ timestamp: -1 }).limit(100).populate('actorId', 'name email');
+    res.status(200).json({ success: true, data: logs });
   } catch (error: any) {
     res.status(500).json({ success: false, message: error.message });
   }

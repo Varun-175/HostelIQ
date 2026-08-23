@@ -12,7 +12,11 @@ export const getRooms = async (req: Request, res: Response) => {
 
 export const getRoom = async (req: Request, res: Response) => {
   try {
-    const room = await roomService.getRoomByNo(Number(req.params.roomNo));
+    const roomNo = Number(req.params.roomNo);
+    if (!Number.isInteger(roomNo) || roomNo < 1) {
+      return res.status(400).json({ success: false, message: 'Invalid room number' });
+    }
+    const room = await roomService.getRoomByNo(roomNo);
     if (!room) {
       return res.status(404).json({ success: false, message: 'Room not found' });
     }

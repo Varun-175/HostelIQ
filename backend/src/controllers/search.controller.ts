@@ -15,7 +15,7 @@ export const search = async (req: Request, res: Response) => {
     const roomQuery = !isNaN(parsedRoomNo) ? { roomNo: parsedRoomNo } : null;
 
     // Search students by name or registerNo (case-insensitive)
-    const studentRegex = new RegExp(q, 'i');
+    const studentRegex = new RegExp(q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i');
     
     const [students, rooms] = await Promise.all([
       Student.find({
@@ -23,7 +23,7 @@ export const search = async (req: Request, res: Response) => {
           { name: { $regex: studentRegex } },
           { registerNo: { $regex: studentRegex } }
         ]
-      }).limit(10).populate('allocation.roomNo'),
+      }).limit(10),
       
       roomQuery ? Room.find(roomQuery).limit(5) : Promise.resolve([])
     ]);

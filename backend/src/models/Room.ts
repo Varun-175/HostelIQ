@@ -72,4 +72,18 @@ const roomSchema = new Schema<IRoom>(
 // Indexes
 roomSchema.index({ block: 1, roomNo: 1 }, { unique: true });
 
+roomSchema.pre('validate', function () {
+  const occupantCount = this.occupants.length;
+  this.occupancy = {
+    current: occupantCount,
+    available: Math.max(0, this.capacity - occupantCount),
+  };
+
+  if (this.status !== 'MAINTENANCE' && this.status !== 'RESERVED') {
+    this.status = occupantCount === 0
+      ? 'AVAILABLE'
+      : occupantCount >= this.capacity ? 'FULL' : 'PARTIAL';
+  }
+});
+
 export const Room = mongoose.model<IRoom>('Room', roomSchema);
