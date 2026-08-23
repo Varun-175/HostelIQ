@@ -8,6 +8,13 @@ import { CheckCircle2 } from 'lucide-react';
 export default function AdminRequests() {
   const [selectedRequest, setSelectedRequest] = useState<string | null>(null);
   const [notice, setNotice] = useState('');
+  const [resolvedIds, setResolvedIds] = useState<string[]>([]);
+
+  const handleComplete = (allocationId: string) => {
+    setResolvedIds((current) => current.includes(allocationId) ? current : [...current, allocationId]);
+    setSelectedRequest(null);
+    setNotice('Allocation approved and removed from the queue.');
+  };
 
   return (
     <div className="space-y-6">
@@ -20,14 +27,14 @@ export default function AdminRequests() {
         <div className="lg:col-span-2">
           <Card className="border-0 shadow-xl shadow-slate-200/50">
             <CardContent className="p-6">
-              <RequestQueue onSelectRequest={setSelectedRequest} />
+              <RequestQueue resolvedIds={resolvedIds} onSelectRequest={setSelectedRequest} />
             </CardContent>
           </Card>
         </div>
 
         <div>
           {selectedRequest ? (
-            <AdminReviewPanel allocationId={selectedRequest} onComplete={() => { setSelectedRequest(null); setNotice('Allocation updated successfully.'); }} />
+            <AdminReviewPanel allocationId={selectedRequest} onComplete={handleComplete} />
           ) : (
             <Card className="border-2 border-dashed border-slate-200 bg-slate-50 shadow-none">
               <CardContent className="flex h-[500px] flex-col items-center justify-center text-center">

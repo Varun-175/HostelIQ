@@ -9,7 +9,7 @@ import { Input } from '../ui/Input';
 
 interface AdminReviewPanelProps {
   allocationId: string;
-  onComplete: () => void;
+  onComplete: (allocationId: string) => void;
 }
 
 export default function AdminReviewPanel({ allocationId, onComplete }: AdminReviewPanelProps) {
@@ -19,9 +19,14 @@ export default function AdminReviewPanel({ allocationId, onComplete }: AdminRevi
   const [overrideReason, setOverrideReason] = useState('');
   const [action, setAction] = useState<'approve' | 'override' | null>(null);
   const [error, setError] = useState('');
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    reviewAllocation(allocationId).then(setRequest).catch(console.error);
+    setIsLoading(true);
+    setError('');
+    reviewAllocation(allocationId).then(setRequest).catch((error) => {
+      setError(error.response?.data?.message || 'Unable to load this allocation.');
+    }).finally(() => setIsLoading(false));
   }, [allocationId]);
 
   const handleApprove = async () => {
@@ -30,7 +35,7 @@ export default function AdminReviewPanel({ allocationId, onComplete }: AdminRevi
     setError('');
     try {
       await approveAllocation(request._id);
-      onComplete();
+      onComplete(request._id);
     } catch (error) {
       setError((error as any).response?.data?.message || 'Approval failed. Please try again.');
     } finally {
@@ -44,7 +49,7 @@ export default function AdminReviewPanel({ allocationId, onComplete }: AdminRevi
     setError('');
     try {
       await overrideAllocation(request._id, overrideRoom, overrideReason);
-      onComplete();
+      onComplete(request._id);
     } catch (error) {
       setError((error as any).response?.data?.message || 'Override failed. Please try again.');
     } finally {
@@ -52,35 +57,45 @@ export default function AdminReviewPanel({ allocationId, onComplete }: AdminRevi
     }
   };
 
-  if (!request) return <div className="animate-pulse h-96 bg-slate-200 rounded-xl" />;
+  if (isLoading) return <div className="surface-panel h-96 animate-pulse rounded-2xl" />;
+  if (!request) return <div className="surface-panel rounded-2xl p-6 text-sm text-danger-700" role="alert">{error || 'Allocation unavailable.'}</div>;
 
   return (
     <>
-      <Card className="w-full border-0 shadow-xl shadow-slate-200/50">
-        <CardHeader className="bg-gradient-to-r from-primary-900 to-indigo-900 text-white rounded-t-2xl">
-          <div className="flex justify-between items-start">
+      <Card className="w-full overflow-hidden border-0 shadow-xl shadow-slate-200/50">
+        <CardHeader className="bg-gradient-to-br from-primary-950 via-primary-900 to-accent-700 text-white">
+          <div className="flex items-start justify-between gap-4">
             <div>
-              <CardTitle className="text-white">Review Allocation Request</CardTitle>
-              <CardDescription className="text-primary-200">Student: {request.studentId?.name || request.studentId}</CardDescription>
+              <p className="mb-2 text-xs font-semibold uppercase tracking-[0.18em] text-accent-300">SmartFit review</p>
+              <CardTitle className="text-xl leading-tight text-white">Review Allocation Request</CardTitle>
+              <CardDescription className="mt-1 text-primary-200">Student: {request.studentId?.name || request.studentId}</CardDescription>
             </div>
-            <Badge variant="warning">Score: {Math.round(request.totalScore)}</Badge>
+            <div className="shrink-0 rounded-2xl bg-amber-100 px-4 py-3 text-center text-amber-950 shadow-lg shadow-black/10">
+              <span className="block text-[10px] font-bold uppercase tracking-wider">Score</span>
+              <strong className="block text-2xl leading-none">{Math.round(request.totalScore)}</strong>
+            </div>
           </div>
         </CardHeader>
-        <CardContent className="space-y-6 pt-6">
+        <CardContent className="space-y-5 p-5 sm:p-6">
           {error && <p className="rounded-lg border border-danger-200 bg-danger-50 px-3 py-2 text-sm text-danger-700" role="alert">{error}</p>}
           <div>
             <h4 className="text-sm font-semibold text-slate-900 mb-2">Proposed Room</h4>
-            <div className="p-4 bg-primary-50 border border-primary-100 rounded-lg">
+            <div className="flex items-center justify-between rounded-xl border border-primary-100 bg-primary-50 px-4 py-3">
               <span className="text-2xl font-bold text-primary-700">Room {request.roomNo}</span>
+              <Badge variant="outline">{request.status}</Badge>
             </div>
           </div>
           
           <div>
             <h4 className="text-sm font-semibold text-slate-900 mb-2">SmartFit Breakdown</h4>
-            <div className="space-y-2">
+            <div className="grid grid-cols-2 gap-2">
               <div className="flex justify-between text-sm">
                 <span className="text-slate-600">Room Type</span>
                 <span className="font-medium">{Math.round(request.scoreBreakdown?.roomType || 0)}</span>
+              </div>
+              <div className="flex justify-between text-sm">
+                <span className="text-slate-600">Occupancy</span>
+                <span className="font-medium">{Math.round(request.scoreBreakdown?.occupancy || 0)}</span>
               </div>
               <div className="flex justify-between text-sm">
                 <span className="text-slate-600">Floor</span>
@@ -97,7 +112,7 @@ export default function AdminReviewPanel({ allocationId, onComplete }: AdminRevi
             </div>
           </div>
 
-          <div className="flex justify-end gap-3 pt-4 border-t border-slate-100">
+          <div className="flex flex-col-reverse gap-3 border-t border-slate-100 pt-4 sm:flex-row sm:justify-end">
             <Button variant="outline" onClick={() => setShowOverride(true)} disabled={!!action}>Override</Button>
             <Button onClick={handleApprove} isLoading={action === 'approve'}>Approve Allocation</Button>
           </div>

@@ -4,7 +4,13 @@ import { Card } from '../ui/Card';
 import { Badge } from '../ui/Badge';
 import { Button } from '../ui/Button';
 
-export default function RequestQueue({ limit, onSelectRequest }: { limit?: number, onSelectRequest?: (id: string) => void }) {
+interface RequestQueueProps {
+  limit?: number;
+  resolvedIds?: string[];
+  onSelectRequest?: (id: string) => void;
+}
+
+export default function RequestQueue({ limit, resolvedIds = [], onSelectRequest }: RequestQueueProps) {
   const [requests, setRequests] = useState<AllocationResponse[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -12,7 +18,8 @@ export default function RequestQueue({ limit, onSelectRequest }: { limit?: numbe
     async function load() {
       try {
         const allocations = await getAllocations();
-        setRequests(limit ? allocations.slice(0, limit) : allocations);
+        const visibleAllocations = allocations.filter((allocation) => !resolvedIds.includes(allocation._id));
+        setRequests(limit ? visibleAllocations.slice(0, limit) : visibleAllocations);
       } catch (error) {
         console.error(error);
       } finally {
@@ -20,7 +27,7 @@ export default function RequestQueue({ limit, onSelectRequest }: { limit?: numbe
       }
     }
     load();
-  }, [limit]);
+  }, [limit, resolvedIds]);
 
   if (isLoading) {
     return <div>Loading requests...</div>;
