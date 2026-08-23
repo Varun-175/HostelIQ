@@ -2,6 +2,9 @@ import mongoose, { Document, Schema } from 'mongoose';
 
 export interface IAllocation extends Document {
   studentId: mongoose.Types.ObjectId;
+  roomId?: mongoose.Types.ObjectId;
+  requestId?: mongoose.Types.ObjectId;
+  status?: 'PENDING' | 'ALLOCATED' | 'CANCELLED';
   roomNo: number;
   totalScore: number;
   scoreBreakdown: {
@@ -11,8 +14,16 @@ export interface IAllocation extends Document {
     occupancy: number;
     fairness: number;
   };
+  smartFit?: {
+    totalScore: number;
+    rank: number;
+    candidatesEvaluated: number;
+  };
   reason: string;
   allocatedAt: Date;
+  allocatedBy?: 'SYSTEM' | 'ADMIN';
+  override?: boolean;
+  overrideReason?: string;
 }
 
 const allocationSchema = new Schema<IAllocation>(
@@ -27,6 +38,13 @@ const allocationSchema = new Schema<IAllocation>(
       type: Number,
       required: true,
     },
+    roomId: { type: Schema.Types.ObjectId, ref: 'Room' },
+    requestId: { type: Schema.Types.ObjectId, ref: 'AllocationRequest' },
+    status: {
+      type: String,
+      enum: ['PENDING', 'ALLOCATED', 'CANCELLED'],
+      default: 'ALLOCATED',
+    },
     totalScore: {
       type: Number,
       required: true,
@@ -38,6 +56,11 @@ const allocationSchema = new Schema<IAllocation>(
       occupancy: { type: Number, required: true },
       fairness: { type: Number, required: true },
     },
+    smartFit: {
+      totalScore: { type: Number },
+      rank: { type: Number },
+      candidatesEvaluated: { type: Number },
+    },
     reason: {
       type: String,
       required: true,
@@ -46,6 +69,13 @@ const allocationSchema = new Schema<IAllocation>(
       type: Date,
       default: Date.now,
     },
+    allocatedBy: {
+      type: String,
+      enum: ['SYSTEM', 'ADMIN'],
+      default: 'SYSTEM',
+    },
+    override: { type: Boolean, default: false },
+    overrideReason: { type: String },
   },
   {
     timestamps: true,

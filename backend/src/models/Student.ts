@@ -5,6 +5,12 @@ export interface IStudent extends Document {
   name: string;
   department: string;
   year: number;
+  semester?: number;
+  gender?: 'MALE' | 'FEMALE' | 'OTHER';
+  email?: string;
+  phone?: string;
+  academicProfile?: any;
+  hostelProfile?: any;
   preferences: {
     roomType: 'SINGLE' | 'DOUBLE' | 'TRIPLE';
     floor?: number;
@@ -39,6 +45,12 @@ const studentSchema = new Schema<IStudent>(
       min: 1,
       max: 5,
     },
+    semester: { type: Number },
+    gender: { type: String, enum: ['MALE', 'FEMALE', 'OTHER'] },
+    email: { type: String },
+    phone: { type: String },
+    academicProfile: { type: Schema.Types.Mixed },
+    hostelProfile: { type: Schema.Types.Mixed },
     preferences: {
       roomType: {
         type: String,
