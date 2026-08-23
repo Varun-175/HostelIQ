@@ -65,7 +65,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         logout,
         isAuthenticated: !!token,
         isLoading,
-        hasPermission: (permission: string) => user?.permissions.includes('*') || user?.permissions.includes(permission) || false,
+        hasPermission: (permission: string) => {
+          if (!user) return false;
+          const perms = user.permissions || [];
+          if (perms.length > 0) {
+            return perms.includes('*') || perms.includes(permission);
+          }
+          // Fallback if permissions are missing from local storage or old token
+          if (user.role === 'SUPER_ADMIN') return true;
+          if (user.role === 'HOSTEL_ADMIN') return ['room.manage', 'allocation.manage', 'student.read', 'analytics.read'].includes(permission);
+          if (user.role === 'WARDEN') return ['allocation.approve', 'allocation.manage', 'student.read', 'room.read', 'analytics.read'].includes(permission);
+          return false;
+        },
       }}
     >
       {children}
