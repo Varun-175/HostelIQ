@@ -83,7 +83,17 @@ export default function StudentDashboard() {
       {allocation ? (
         <>
           <SmartFitResult allocation={allocation} />
-          {allocation.status === 'ALLOCATED' && <Button variant="outline" onClick={handleVacate} isLoading={isVacating}>Vacate room</Button>}
+          {allocation.status === 'ALLOCATED' && (
+             <div className="mt-8 rounded-3xl border border-danger-200 bg-white p-8 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-6 animate-slide-up">
+               <div>
+                 <h3 className="text-xl font-bold text-slate-900 display-font">Vacate Room</h3>
+                 <p className="mt-1 text-slate-500 max-w-lg">If you are moving out, you must vacate your room. This action immediately releases the room for other students and ends your current allocation.</p>
+               </div>
+               <Button variant="danger" className="shrink-0 rounded-xl px-8 py-6 font-bold shadow-lg shadow-danger-500/20 text-lg hover:bg-danger-700 w-full sm:w-auto" onClick={handleVacate} isLoading={isVacating}>
+                 Vacate Room Now
+               </Button>
+             </div>
+          )}
         </>
       ) : showPreferences ? (
         <div className="animate-slide-up">
