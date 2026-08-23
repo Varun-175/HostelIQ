@@ -62,6 +62,11 @@ export const approveAllocation = async (allocationId: string) => {
   return response.data.data;
 };
 
+export const rejectAllocation = async (allocationId: string, reason: string) => {
+  const response = await apiClient.post(`/admin/allocations/${allocationId}/reject`, { reason });
+  return response.data.data;
+};
+
 export const overrideAllocation = async (allocationId: string, roomId: string, reason: string) => {
   const response = await apiClient.post(`/admin/allocations/${allocationId}/override`, { roomId, reason });
   return response.data.data;

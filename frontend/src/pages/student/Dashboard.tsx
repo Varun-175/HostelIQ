@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { getStudentProfile, StudentProfile } from '../../api/students.api';
-import { getStudentAllocation, AllocationResponse } from '../../api/allocations.api';
+import { getStudentAllocation, vacateStudent, AllocationResponse } from '../../api/allocations.api';
 import { Card } from '../../components/ui/Card';
 import { Button } from '../../components/ui/Button';
 import PreferenceFlow from '../../components/students/PreferenceFlow';
@@ -14,6 +14,8 @@ export default function StudentDashboard() {
   const [allocation, setAllocation] = useState<AllocationResponse | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [showPreferences, setShowPreferences] = useState(false);
+  const [isVacating, setIsVacating] = useState(false);
+  const [notice, setNotice] = useState('');
 
   const loadData = async () => {
     if (!user?.id) return;
@@ -28,6 +30,20 @@ export default function StudentDashboard() {
       console.error('Failed to load student dashboard data:', error);
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleVacate = async () => {
+    if (!user?.id || !window.confirm('Vacate this room now? The room will become available.')) return;
+    setIsVacating(true);
+    try {
+      await vacateStudent(user.id);
+      setNotice('Room vacated successfully. It is available for the next student.');
+      await loadData();
+    } catch (error: any) {
+      setNotice(error.response?.data?.message || 'Unable to vacate the room.');
+    } finally {
+      setIsVacating(false);
     }
   };
 
@@ -46,6 +62,7 @@ export default function StudentDashboard() {
 
   return (
     <div className="space-y-8 pb-8">
+      {notice && <div className="rounded-xl border border-success-200 bg-success-50 px-4 py-3 text-sm font-medium text-success-700" role="status">{notice}</div>}
       {/* Hero Section */}
       <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-primary-900 via-primary-800 to-indigo-900 p-8 text-white shadow-2xl">
         <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-primary-500/20 blur-3xl animate-float" />
@@ -64,7 +81,10 @@ export default function StudentDashboard() {
       </div>
 
       {allocation ? (
-        <SmartFitResult allocation={allocation} />
+        <>
+          <SmartFitResult allocation={allocation} />
+          {allocation.status === 'ALLOCATED' && <Button variant="outline" onClick={handleVacate} isLoading={isVacating}>Vacate room</Button>}
+        </>
       ) : showPreferences ? (
         <div className="animate-slide-up">
           <PreferenceFlow 

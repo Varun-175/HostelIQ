@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { AllocationResponse } from '../../api/allocations.api';
-import { reviewAllocation, approveAllocation, overrideAllocation } from '../../api/admin.api';
+import { reviewAllocation, approveAllocation, rejectAllocation, overrideAllocation } from '../../api/admin.api';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../ui/Card';
 import { Button } from '../ui/Button';
 import { Badge } from '../ui/Badge';
@@ -15,8 +15,10 @@ interface AdminReviewPanelProps {
 export default function AdminReviewPanel({ allocationId, onComplete }: AdminReviewPanelProps) {
   const [request, setRequest] = useState<AllocationResponse | null>(null);
   const [showOverride, setShowOverride] = useState(false);
+  const [showReject, setShowReject] = useState(false);
   const [overrideRoom, setOverrideRoom] = useState('');
   const [overrideReason, setOverrideReason] = useState('');
+  const [rejectReason, setRejectReason] = useState('');
   const [action, setAction] = useState<'approve' | 'override' | null>(null);
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(true);
@@ -52,6 +54,20 @@ export default function AdminReviewPanel({ allocationId, onComplete }: AdminRevi
       onComplete(request._id);
     } catch (error) {
       setError((error as any).response?.data?.message || 'Override failed. Please try again.');
+    } finally {
+      setAction(null);
+    }
+  };
+
+  const handleReject = async () => {
+    if (!rejectReason.trim() || !request) return;
+    setAction('override');
+    setError('');
+    try {
+      await rejectAllocation(request._id, rejectReason.trim());
+      onComplete(request._id);
+    } catch (error) {
+      setError((error as any).response?.data?.message || 'Rejection failed. Please try again.');
     } finally {
       setAction(null);
     }
@@ -113,6 +129,7 @@ export default function AdminReviewPanel({ allocationId, onComplete }: AdminRevi
           </div>
 
           <div className="flex flex-col-reverse gap-3 border-t border-slate-100 pt-4 sm:flex-row sm:justify-end">
+            <Button variant="ghost" onClick={() => setShowReject(true)} disabled={!!action}>Reject</Button>
             <Button variant="outline" onClick={() => setShowOverride(true)} disabled={!!action}>Override</Button>
             <Button onClick={handleApprove} isLoading={action === 'approve'}>Approve Allocation</Button>
           </div>
@@ -152,6 +169,18 @@ export default function AdminReviewPanel({ allocationId, onComplete }: AdminRevi
               onChange={e => setOverrideReason(e.target.value)} 
             />
           </div>
+        </div>
+      </Modal>
+
+      <Modal
+        isOpen={showReject}
+        onClose={() => setShowReject(false)}
+        title="Reject allocation"
+        footer={<><Button variant="ghost" onClick={() => setShowReject(false)}>Cancel</Button><Button variant="danger" onClick={handleReject} isLoading={action === 'override'}>Reject and release room</Button></>}
+      >
+        <div className="space-y-2 py-2">
+          <label className="text-sm font-medium text-slate-700">Reason for rejection</label>
+          <Input required placeholder="e.g. Eligibility documents incomplete" value={rejectReason} onChange={(e) => setRejectReason(e.target.value)} />
         </div>
       </Modal>
     </>

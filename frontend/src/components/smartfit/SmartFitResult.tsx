@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Card, CardContent } from '../ui/Card';
 import { Badge } from '../ui/Badge';
 import { AllocationResponse } from '../../api/allocations.api';
-import { Sparkles, Info, CheckCircle2, TrendingUp, Building, Users } from 'lucide-react';
+import { Sparkles, Info, CheckCircle2, TrendingUp, Building, Users, CalendarClock } from 'lucide-react';
 
 interface SmartFitResultProps {
   allocation: AllocationResponse;
@@ -102,6 +102,12 @@ export default function SmartFitResult({ allocation }: SmartFitResultProps) {
                 </Badge>
               </div>
             </div>
+            {allocation.endsAt && (
+              <div className="flex items-center gap-2 font-medium text-slate-700">
+                <CalendarClock className="h-4 w-4 text-accent-600" />
+                Available {new Date(allocation.endsAt).toLocaleDateString()}
+              </div>
+            )}
             {allocation.smartFit?.rank && (
               <div className="flex items-center gap-2 font-medium text-slate-700">
                 <TrendingUp className="h-4 w-4 text-primary-500" />

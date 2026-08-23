@@ -14,6 +14,7 @@ export default function PreferenceFlow({ profile, onComplete }: PreferenceFlowPr
   const [step, setStep] = useState(1);
   const [roomType, setRoomType] = useState<'SINGLE' | 'DOUBLE' | 'TRIPLE'>(profile.preferences?.roomType || 'DOUBLE');
   const [floor, setFloor] = useState<number | undefined>(profile.preferences?.floor);
+  const [durationDays, setDurationDays] = useState(180);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isAllocating, setIsAllocating] = useState(false);
 
@@ -32,7 +33,7 @@ export default function PreferenceFlow({ profile, onComplete }: PreferenceFlowPr
   const handleAllocate = async () => {
     setIsAllocating(true);
     try {
-      await requestAllocation(profile._id);
+      await requestAllocation(profile._id, durationDays);
       onComplete();
     } catch (error) {
       console.error(error);
@@ -112,6 +113,21 @@ export default function PreferenceFlow({ profile, onComplete }: PreferenceFlowPr
             </div>
             <p className="text-sm text-slate-500">Leaving this blank allows the engine to optimize purely for room type and fairness.</p>
           </div>
+
+          <div className="space-y-3 border-t border-slate-100 pt-4">
+            <div className="flex items-center justify-between gap-3">
+              <label className="text-base font-semibold text-slate-900">Booking duration</label>
+              <span className="rounded-md bg-slate-100 px-2 py-1 text-xs font-medium text-slate-500">Auto-release</span>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {[30, 90, 180, 365].map((days) => (
+                <button key={days} type="button" onClick={() => setDurationDays(days)} className={`rounded-xl border-2 px-4 py-2 text-sm font-semibold transition ${durationDays === days ? 'border-primary-500 bg-primary-50 text-primary-700' : 'border-slate-100 text-slate-600 hover:border-slate-300'}`}>
+                  {days === 365 ? '1 year' : `${days} days`}
+                </button>
+              ))}
+            </div>
+            <p className="text-sm text-slate-500">Your room becomes available automatically when this period ends.</p>
+          </div>
           
           <div className="flex justify-end pt-6">
             <Button size="lg" onClick={handleSavePreferences} isLoading={isSubmitting} className="group">
@@ -134,7 +150,7 @@ export default function PreferenceFlow({ profile, onComplete }: PreferenceFlowPr
           </div>
           <h3 className="text-3xl font-bold tracking-tight">Ready to find your match?</h3>
           <p className="mt-4 max-w-md text-lg text-primary-100">
-            Our SmartFit engine will analyze your preferences, academic standing, and behavioral record to find the perfect room.
+            SmartFit will match your preferences and release the room automatically when your booking ends.
           </p>
         </div>
       </div>

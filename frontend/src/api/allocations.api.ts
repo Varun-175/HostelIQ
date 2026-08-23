@@ -30,6 +30,8 @@ export interface AllocationResponse {
   reason: string;
   status: 'PENDING' | 'ALLOCATED' | 'CANCELLED';
   allocatedAt: string;
+  startsAt?: string;
+  endsAt?: string;
   allocatedBy: 'SYSTEM' | 'ADMIN';
   override?: boolean;
   overrideReason?: string;
@@ -39,8 +41,13 @@ export interface AllocationResponse {
    API CALLS
    ═══════════════════════════════════════════════ */
 
-export const requestAllocation = async (studentId: string): Promise<AllocationResponse> => {
-  const response = await apiClient.post('/allocations/allocate', { studentId });
+export const requestAllocation = async (studentId: string, durationDays: number): Promise<AllocationResponse> => {
+  const response = await apiClient.post('/allocations/allocate', { studentId, durationDays });
+  return response.data.data;
+};
+
+export const vacateStudent = async (studentId: string): Promise<AllocationResponse> => {
+  const response = await apiClient.post(`/allocations/${studentId}/vacate`);
   return response.data.data;
 };
 
