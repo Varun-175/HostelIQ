@@ -64,7 +64,7 @@ export const allocateStudent = async (studentId: string): Promise<IAllocation> =
       totalScore: bestCandidate.totalScore,
       scoreBreakdown: bestCandidate.scoreBreakdown,
       reason: bestCandidate.reason,
-      status: 'ALLOCATED',
+      status: 'PENDING',
       allocatedBy: 'SYSTEM',
       smartFit: {
         totalScore: bestCandidate.totalScore,

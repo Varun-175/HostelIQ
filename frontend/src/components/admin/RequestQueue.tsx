@@ -18,7 +18,7 @@ export default function RequestQueue({ limit, resolvedIds = [], onSelectRequest 
     async function load() {
       try {
         const allocations = await getAllocations();
-        const visibleAllocations = allocations.filter((allocation) => !resolvedIds.includes(allocation._id));
+        const visibleAllocations = allocations.filter((allocation) => allocation.status === 'PENDING' && !resolvedIds.includes(allocation._id));
         setRequests(limit ? visibleAllocations.slice(0, limit) : visibleAllocations);
       } catch (error) {
         console.error(error);
@@ -36,7 +36,7 @@ export default function RequestQueue({ limit, resolvedIds = [], onSelectRequest 
   if (requests.length === 0) {
     return (
       <Card className="flex flex-col items-center justify-center p-8 text-center border-dashed">
-        <div className="text-slate-400">No pending requests in the queue.</div>
+        <div className="text-slate-400">No pending allocation requests.</div>
       </Card>
     );
   }
