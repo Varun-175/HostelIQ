@@ -1,0 +1,70 @@
+import { Request, Response } from 'express';
+import mongoose from 'mongoose';
+import * as allocationService from '../services/allocation.service';
+
+export const allocate = async (req: Request, res: Response) => {
+  try {
+    const { studentId } = req.body;
+    if (!studentId) {
+      return res.status(400).json({ success: false, message: 'Student ID is required' });
+    }
+    const durationDays = req.body.durationDays === undefined ? 180 : Number(req.body.durationDays);
+    const allocation = await allocationService.allocateStudent(studentId, durationDays);
+    res.status(200).json({ success: true, data: allocation });
+  } catch (error: any) {
+    res.status(400).json({ success: false, message: error.message });
+  }
+};
+
+export const getAllocations = async (req: Request, res: Response) => {
+  try {
+    const allocations = await allocationService.getAllocations();
+    res.status(200).json({ success: true, data: allocations });
+  } catch (error: any) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+export const getStudentAllocation = async (req: Request, res: Response) => {
+  try {
+    if (!mongoose.isValidObjectId(req.params.studentId)) {
+      return res.status(400).json({ success: false, message: 'Invalid student ID' });
+    }
+    const allocation = await allocationService.getAllocationByStudentId(req.params.studentId as string);
+    if (!allocation) {
+      return res.status(404).json({ success: false, message: 'Allocation not found for this student' });
+    }
+    res.status(200).json({ success: true, data: allocation });
+  } catch (error: any) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+export const getStudentAllocationHistory = async (req: Request, res: Response) => {
+  try {
+    if (!mongoose.isValidObjectId(req.params.studentId)) {
+      return res.status(400).json({ success: false, message: 'Invalid student ID' });
+    }
+    const history = await allocationService.getAllocationHistory(req.params.studentId as string);
+    res.status(200).json({ success: true, data: history });
+  } catch (error: any) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+export const vacateStudent = async (req: Request, res: Response) => {
+  try {
+    if (!mongoose.isValidObjectId(req.params.studentId)) {
+      return res.status(400).json({ success: false, message: 'Invalid student ID' });
+    }
+    const allocation = await allocationService.closeAllocation(
+      req.params.studentId as string,
+      'VACATED',
+      'Student vacated the room',
+      'STUDENT'
+    );
+    res.status(200).json({ success: true, data: allocation, message: 'Room vacated and marked available' });
+  } catch (error: any) {
+    res.status(400).json({ success: false, message: error.message });
+  }
+};
